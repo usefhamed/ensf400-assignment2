@@ -84,3 +84,24 @@ $ curl http://0.0.0.0
 Hello World from managedhost-app-3
 ...
 ```
+
+## Ansible Python API
+
+For the Python API, we should use the Python `ansible-runner` library.
+
+## References
+
+* [Using Runner as a Python Module Interface to Ansible](https://ansible-runner.readthedocs.io/en/latest/python_interface.html)
+
+## Python Library Installation
+
+```bash
+$ pip install ansible-runner
+```
+Your code should import `ansible_runner` library.
+
+```python
+import ansible_runner
+
+# Write your answer here by modifying or extending the sample code below
+```
