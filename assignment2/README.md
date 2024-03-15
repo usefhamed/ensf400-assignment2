@@ -18,18 +18,17 @@ Nginx can be used as a load balancer. Load balancing across multiple application
 Nginx uses a configuration file called `nginx.cfg` to configure its functions. If we want to use it as a load balancer, here is the [documentation](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/) how to install and configure Nginx using Ansible. Here is a sample snippet of `nginx.cfg` to use it as a load balancer.
 
 ```
-http {
-    upstream backend {
-        server 1.2.3.4:5000; # backend service 1
-        server 1.2.3.4:6000; # backend service 2
-    }
-    
-    server {
-        location / {
-            proxy_pass http://backend; # forward all requests to backend upstream
-        }
+upstream backend {
+    server 1.2.3.4:5000; # backend service 1
+    server 1.2.3.4:6000; # backend service 2
+}
+
+server {
+    location / {
+        proxy_pass http://backend; # forward all requests to backend upstream
     }
 }
+
 ```
 
 ## Install and Configure Nginx
@@ -83,6 +82,24 @@ Hello World from managedhost-app-2
 $ curl http://0.0.0.0
 Hello World from managedhost-app-3
 ...
+```
+
+## Reinstalling Nginx
+
+If there are errors when you install and configure Nginx, use the following Play to completely uninstall Nginx before you retry installing and configuring it.
+
+```yaml
+# Uninstall Nginx
+- name: Play - Uninstall Nginx
+  hosts: localhost
+  become: yes
+  tasks: 
+    - name: Unnstall Nginx
+      apt: name=nginx state=absent
+```
+Then, run the following command to purge all Nginx configs:
+```bash
+$ sudo apt purge nginx nginx-common nginx-full
 ```
 
 ## Ansible Python API
