@@ -1,34 +1,8 @@
-# version: "3.7"
-
-# services:
-#   managedhost-app-1:
-#     build: 
-#       context: managed-host/alpine/app1
-#     restart: unless-stopped
-#     network_mode: "bridge"
-#     environment:
-#       - SSH_ENABLE_ROOT=true
-#   managedhost-app-2:
-#     build: 
-#       context: managed-host/alpine/app2
-#     restart: unless-stopped
-#     network_mode: "bridge"
-#     environment:
-#       - SSH_ENABLE_ROOT=true
-#   managedhost-app-3:
-#     build: 
-#       context: managed-host/alpine/app3
-#     restart: unless-stopped
-#     network_mode: "bridge"
-#     environment:
-#       - SSH_ENABLE_ROOT=true
-
-
 version: "3.7"
 
 services:
   managedhost-app-1:
-    build: 
+    build:
       context: managed-host/alpine/app1
     restart: unless-stopped
     network_mode: "bridge"
@@ -41,7 +15,7 @@ services:
       - SSH_ENABLE_ROOT=true
 
   managedhost-app-2:
-    build: 
+    build:
       context: managed-host/alpine/app2
     restart: unless-stopped
     network_mode: "bridge"
@@ -54,7 +28,7 @@ services:
       - SSH_ENABLE_ROOT=true
 
   managedhost-app-3:
-    build: 
+    build:
       context: managed-host/alpine/app3
     restart: unless-stopped
     network_mode: "bridge"
@@ -63,5 +37,38 @@ services:
       - "2225:2225" # Map Container port 2225 to Host port 2225 (SSH)
     volumes:
       - ./secrets/id_rsa_container.pub:/root/.ssh/authorized_keys
+    environment:
+      - SSH_ENABLE_ROOT=true
+
+  #   loadbalancer:
+  #     build:
+  #       context: ./nginx # Assuming this is where your Dockerfile for the load balancer is
+  #     restart: unless-stopped
+  #     container_name: nginx
+  #     networks:
+  #       - loadbalancing
+  #     ports:
+  #       - "80:80" # Expose HTTP
+  #       - "2226:2222" # Expose SSH
+  #     volumes:
+  #       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #       - ./secrets/id_rsa_container.pub:/root/.ssh/authorized_keys:ro
+  #     environment:
+  #       - SSH_ENABLE_ROOT=true
+
+  # networks:
+  #   loadbalancing:
+  nginx:
+    build: ./nginx
+    restart: unless-stopped
+    ports:
+      - "3003:80" # Map Container port 80 to Host port 3003 (Web)
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./secrets/id_rsa_container.pub:/root/.ssh/authorized_keys:ro
+    depends_on:
+      - managedhost-app-1
+      - managedhost-app-2
+      - managedhost-app-3
     environment:
       - SSH_ENABLE_ROOT=true
