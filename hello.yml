@@ -3,6 +3,7 @@
   hosts: all
   tasks:
     - name: all host are identified with a file
+      become: True
       copy:
         content: My family is {{ ansible_os_family }}
         dest: /family.txt
@@ -51,32 +52,30 @@
 
 # Play to set up the Nginx load balancer
 - name: Play - Install and configure Nginx as a LoadBalancer
-  hosts: localhost
+  hosts: loadbalancer_group
   become: yes
   tasks:
     - name: Update cache
       apt: update_cache=yes
     - name: Install Nginx
-      # TODO
       apt:
         name: nginx
         state: latest
-        become: yes
+        # update_cache: yes
     - name: Copy the Nginx config file to /etc/nginx/sites-available
-      # TODO
       copy:
-        src: ./nginx.conf
-        dest: /etc/nginx/sites-available
-      become: yes
+        src: nginx.cfg
+        dest: /etc/nginx/sites-available/nginx.cfg
+        owner: root
+        group: root
+        mode: "0644"
     - name: Create symlink of the config file at /etc/nginx/sites-enabled
-      # TODO
       file:
-        src: /etc/nginx/sites-available/nginx.conf
+        src: /etc/nginx/sites-available/nginx.cfg
         dest: /etc/nginx/sites-enabled/default
         state: link
-      become: yes
+        force: true
     - name: Restart nginx to apply changes
       service:
         name: nginx
         state: restarted
-      become: yes
